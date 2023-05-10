@@ -44,63 +44,121 @@ import env
 # get_blog_articles START
 # =======================================================================================================
 
-def get_blog_articles():
+def get_blog_articles(reset=False):
     '''
     Gets the title and contents of each blog article from the codeup blog
     site https://codeup.com/blog/
     
     INPUT:
-    NONE
+    reset = Boolean value when set true, will recreate the .csv with the most up to date
+            information.
     
     OUTPUT:
-    blogs_dict = Dictionary of all pertinent information
+    codeup_blogs.csv = .csv file ONLY IF NONEXISTANT OR RESET IS TRUE
+    blogs_df = Pandas dataframe of all pertinent information
     '''
-    url = 'https://codeup.com/blog/'
-    headers = {'User-Agent' : 'Codeup Data Science'}
-    response = get(url, headers=headers)
-    soup = BeautifulSoup(response.content, 'html.parser')
-    valid_articles = []
-    unchecked_articles = soup.find_all('h2')
-    for article in unchecked_articles:
-        if article.a != None:
-            valid_articles.append(article)
-    titles = []
-    valid_content_url = []
-    orientation_content = []
-    paragraph_one_content = []
-    paragraph_two_content = []
-    paragraph_three_content = []
-    for article in valid_articles:
-        titles.append(article.a.text)
-        contenturl = article.a['href']
+    if reset == True:
+        os.remove('codeup_blogs.csv')
+        url = 'https://codeup.com/blog/'
         headers = {'User-Agent' : 'Codeup Data Science'}
-        response = get(contenturl, headers=headers)
-        if response.status_code == 200:
-            valid_content_url.append(contenturl)
-            content_soup = BeautifulSoup(response.content, 'html.parser')
-            divs = content_soup.find_all('div', class_='entry-content')
-            for div in divs:
-                    paragraphs = div.find_all('p')
-                    orientation_paragraph = paragraphs[0].text
-                    first_content_paragraph = paragraphs[3].text
-                    second_content_paragraph = paragraphs[4].text
-                    try:
-                        third_content_paragraph = paragraphs[5].text
-                    except IndexError:
-                        third_content_paragraph = ('None')
-                    orientation_content.append(orientation_paragraph)
-                    paragraph_one_content.append(first_content_paragraph)
-                    paragraph_two_content.append(second_content_paragraph)
-                    paragraph_three_content.append(third_content_paragraph)
-    blogs_dict = {
-        'article_title' : titles,
-        'article_url' : valid_content_url,
-        'article_orientation' : orientation_content,
-        'article_first_paragraph' : paragraph_one_content,
-        'article_second_paragraph' : paragraph_two_content,
-        'article_third_paragraph' : paragraph_three_content
-        }
-    return blogs_dict
+        response = get(url, headers=headers)
+        soup = BeautifulSoup(response.content, 'html.parser')
+        valid_articles = []
+        unchecked_articles = soup.find_all('h2')
+        for article in unchecked_articles:
+            if article.a != None:
+                valid_articles.append(article)
+        titles = []
+        valid_content_url = []
+        orientation_content = []
+        paragraph_one_content = []
+        paragraph_two_content = []
+        paragraph_three_content = []
+        for article in valid_articles:
+            titles.append(article.a.text)
+            contenturl = article.a['href']
+            headers = {'User-Agent' : 'Codeup Data Science'}
+            response = get(contenturl, headers=headers)
+            if response.status_code == 200:
+                valid_content_url.append(contenturl)
+                content_soup = BeautifulSoup(response.content, 'html.parser')
+                divs = content_soup.find_all('div', class_='entry-content')
+                for div in divs:
+                        paragraphs = div.find_all('p')
+                        orientation_paragraph = paragraphs[0].text
+                        first_content_paragraph = paragraphs[3].text
+                        second_content_paragraph = paragraphs[4].text
+                        try:
+                            third_content_paragraph = paragraphs[5].text
+                        except IndexError:
+                            third_content_paragraph = ('None')
+                        orientation_content.append(orientation_paragraph)
+                        paragraph_one_content.append(first_content_paragraph)
+                        paragraph_two_content.append(second_content_paragraph)
+                        paragraph_three_content.append(third_content_paragraph)
+        blogs_dict = {
+            'article_title' : titles,
+            'article_url' : valid_content_url,
+            'article_orientation' : orientation_content,
+            'article_first_paragraph' : paragraph_one_content,
+            'article_second_paragraph' : paragraph_two_content,
+            'article_third_paragraph' : paragraph_three_content
+            }
+        blogs_df = pd.DataFrame(blogs_dict)
+        blogs_df.to_csv('codeup_blogs.csv')
+        return blogs_df
+    elif os.path.exists('codeup_blogs.csv'):
+        blogs_df = pd.read_csv('codeup_blogs.csv', index_col=0)
+        return blogs_df
+    elif os.path.exists('codeup_blogs.csv') == False:
+        url = 'https://codeup.com/blog/'
+        headers = {'User-Agent' : 'Codeup Data Science'}
+        response = get(url, headers=headers)
+        soup = BeautifulSoup(response.content, 'html.parser')
+        valid_articles = []
+        unchecked_articles = soup.find_all('h2')
+        for article in unchecked_articles:
+            if article.a != None:
+                valid_articles.append(article)
+        titles = []
+        valid_content_url = []
+        orientation_content = []
+        paragraph_one_content = []
+        paragraph_two_content = []
+        paragraph_three_content = []
+        for article in valid_articles:
+            titles.append(article.a.text)
+            contenturl = article.a['href']
+            headers = {'User-Agent' : 'Codeup Data Science'}
+            response = get(contenturl, headers=headers)
+            if response.status_code == 200:
+                valid_content_url.append(contenturl)
+                content_soup = BeautifulSoup(response.content, 'html.parser')
+                divs = content_soup.find_all('div', class_='entry-content')
+                for div in divs:
+                        paragraphs = div.find_all('p')
+                        orientation_paragraph = paragraphs[0].text
+                        first_content_paragraph = paragraphs[3].text
+                        second_content_paragraph = paragraphs[4].text
+                        try:
+                            third_content_paragraph = paragraphs[5].text
+                        except IndexError:
+                            third_content_paragraph = ('None')
+                        orientation_content.append(orientation_paragraph)
+                        paragraph_one_content.append(first_content_paragraph)
+                        paragraph_two_content.append(second_content_paragraph)
+                        paragraph_three_content.append(third_content_paragraph)
+        blogs_dict = {
+            'article_title' : titles,
+            'article_url' : valid_content_url,
+            'article_orientation' : orientation_content,
+            'article_first_paragraph' : paragraph_one_content,
+            'article_second_paragraph' : paragraph_two_content,
+            'article_third_paragraph' : paragraph_three_content
+            }
+        blogs_df = pd.DataFrame(blogs_dict)
+        blogs_df.to_csv('codeup_blogs.csv')
+        return blogs_df
     
 # =======================================================================================================
 # get_blog_articles END
@@ -108,80 +166,155 @@ def get_blog_articles():
 # get_news_articles START
 # =======================================================================================================
 
-def get_news_articles():
+def get_news_articles(reset=False):
     '''
     Gets the headline, summary, and category of each blog article from the inshorts
     site https://inshorts.com/
     
     INPUT:
-    NONE
+    reset = Boolean value when set true, will recreate the .csv with the most up to date
+            information.
     
     OUTPUT:
-    news_dict = Dictionary of all pertinent information
+    news_articles.csv = .csv file ONLY IF NON-EXISTANT OR RESETTING
+    news_df = Pandas dataframe of all pertinent information
     '''
-    headline_content = []
-    summary_content = []
-    category_content = []
-    urls = [
-        'https://inshorts.com/en/read/business',
-        'https://inshorts.com/en/read/sports',
-        'https://inshorts.com/en/read/technology',
-        'https://inshorts.com/en/read/entertainment'
-    ]
-    url = urls[0]
-    response = get(url)
-    contents = BeautifulSoup(response.content, 'html.parser')
-    articles = contents.find_all('div', class_='card-stack')
-    for article in articles:
-        headlines = article.find_all('span', itemprop='headline')
-        summarys = article.find_all('div', itemprop='articleBody')
-        for headline in headlines:
-            headline_content.append(headline.text)
-        for summary in summarys:
-            summary_content.append(summary.text)
-            category_content.append('Business')
-    url = urls[1]
-    response = get(url)
-    contents = BeautifulSoup(response.content, 'html.parser')
-    articles = contents.find_all('div', class_='card-stack')
-    for article in articles:
-        headlines = article.find_all('span', itemprop='headline')
-        summarys = article.find_all('div', itemprop='articleBody')
-        for headline in headlines:
-            headline_content.append(headline.text)
-        for summary in summarys:
-            summary_content.append(summary.text)
-            category_content.append('Sports')
-    url = urls[2]
-    response = get(url)
-    contents = BeautifulSoup(response.content, 'html.parser')
-    articles = contents.find_all('div', class_='card-stack')
-    for article in articles:
-        headlines = article.find_all('span', itemprop='headline')
-        summarys = article.find_all('div', itemprop='articleBody')
-        for headline in headlines:
-            headline_content.append(headline.text)
-        for summary in summarys:
-            summary_content.append(summary.text)
-            category_content.append('Technology')
-    url = urls[3]
-    response = get(url)
-    contents = BeautifulSoup(response.content, 'html.parser')
-    articles = contents.find_all('div', class_='card-stack')
-    for article in articles:
-        headlines = article.find_all('span', itemprop='headline')
-        summarys = article.find_all('div', itemprop='articleBody')
-        for headline in headlines:
-            headline_content.append(headline.text)
-        for summary in summarys:
-            summary_content.append(summary.text)
-            category_content.append('Entertainment')
-    news_dict = {
-        'category' : category_content,
-        'headline' : headline_content,
-        'summary' : summary_content
-        }
-    return news_dict
+    if reset == True:
+        os.remove('news_articles.csv')
+        headline_content = []
+        summary_content = []
+        category_content = []
+        urls = [
+            'https://inshorts.com/en/read/business',
+            'https://inshorts.com/en/read/sports',
+            'https://inshorts.com/en/read/technology',
+            'https://inshorts.com/en/read/entertainment'
+        ]
+        url = urls[0]
+        response = get(url)
+        contents = BeautifulSoup(response.content, 'html.parser')
+        articles = contents.find_all('div', class_='card-stack')
+        for article in articles:
+            headlines = article.find_all('span', itemprop='headline')
+            summarys = article.find_all('div', itemprop='articleBody')
+            for headline in headlines:
+                headline_content.append(headline.text)
+            for summary in summarys:
+                summary_content.append(summary.text)
+                category_content.append('Business')
+        url = urls[1]
+        response = get(url)
+        contents = BeautifulSoup(response.content, 'html.parser')
+        articles = contents.find_all('div', class_='card-stack')
+        for article in articles:
+            headlines = article.find_all('span', itemprop='headline')
+            summarys = article.find_all('div', itemprop='articleBody')
+            for headline in headlines:
+                headline_content.append(headline.text)
+            for summary in summarys:
+                summary_content.append(summary.text)
+                category_content.append('Sports')
+        url = urls[2]
+        response = get(url)
+        contents = BeautifulSoup(response.content, 'html.parser')
+        articles = contents.find_all('div', class_='card-stack')
+        for article in articles:
+            headlines = article.find_all('span', itemprop='headline')
+            summarys = article.find_all('div', itemprop='articleBody')
+            for headline in headlines:
+                headline_content.append(headline.text)
+            for summary in summarys:
+                summary_content.append(summary.text)
+                category_content.append('Technology')
+        url = urls[3]
+        response = get(url)
+        contents = BeautifulSoup(response.content, 'html.parser')
+        articles = contents.find_all('div', class_='card-stack')
+        for article in articles:
+            headlines = article.find_all('span', itemprop='headline')
+            summarys = article.find_all('div', itemprop='articleBody')
+            for headline in headlines:
+                headline_content.append(headline.text)
+            for summary in summarys:
+                summary_content.append(summary.text)
+                category_content.append('Entertainment')
+        news_dict = {
+            'category' : category_content,
+            'headline' : headline_content,
+            'summary' : summary_content
+            }
+        news_df = pd.DataFrame(news_dict)
+        news_df.to_csv('news_articles.csv')
+        return news_df
+    elif os.path.exists('news_articles.csv'):
+        news_df = pd.read_csv('news_articles.csv', index_col=0)
+        return news_df
+    elif os.path.exists('news_articles.csv') == False:
+        headline_content = []
+        summary_content = []
+        category_content = []
+        urls = [
+            'https://inshorts.com/en/read/business',
+            'https://inshorts.com/en/read/sports',
+            'https://inshorts.com/en/read/technology',
+            'https://inshorts.com/en/read/entertainment'
+        ]
+        url = urls[0]
+        response = get(url)
+        contents = BeautifulSoup(response.content, 'html.parser')
+        articles = contents.find_all('div', class_='card-stack')
+        for article in articles:
+            headlines = article.find_all('span', itemprop='headline')
+            summarys = article.find_all('div', itemprop='articleBody')
+            for headline in headlines:
+                headline_content.append(headline.text)
+            for summary in summarys:
+                summary_content.append(summary.text)
+                category_content.append('Business')
+        url = urls[1]
+        response = get(url)
+        contents = BeautifulSoup(response.content, 'html.parser')
+        articles = contents.find_all('div', class_='card-stack')
+        for article in articles:
+            headlines = article.find_all('span', itemprop='headline')
+            summarys = article.find_all('div', itemprop='articleBody')
+            for headline in headlines:
+                headline_content.append(headline.text)
+            for summary in summarys:
+                summary_content.append(summary.text)
+                category_content.append('Sports')
+        url = urls[2]
+        response = get(url)
+        contents = BeautifulSoup(response.content, 'html.parser')
+        articles = contents.find_all('div', class_='card-stack')
+        for article in articles:
+            headlines = article.find_all('span', itemprop='headline')
+            summarys = article.find_all('div', itemprop='articleBody')
+            for headline in headlines:
+                headline_content.append(headline.text)
+            for summary in summarys:
+                summary_content.append(summary.text)
+                category_content.append('Technology')
+        url = urls[3]
+        response = get(url)
+        contents = BeautifulSoup(response.content, 'html.parser')
+        articles = contents.find_all('div', class_='card-stack')
+        for article in articles:
+            headlines = article.find_all('span', itemprop='headline')
+            summarys = article.find_all('div', itemprop='articleBody')
+            for headline in headlines:
+                headline_content.append(headline.text)
+            for summary in summarys:
+                summary_content.append(summary.text)
+                category_content.append('Entertainment')
+        news_dict = {
+            'category' : category_content,
+            'headline' : headline_content,
+            'summary' : summary_content
+            }
+        news_df = pd.DataFrame(news_dict)
+        news_df.to_csv('news_articles.csv')
+        return news_df
     
 # =======================================================================================================
 # get_news_articles END
