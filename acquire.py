@@ -19,7 +19,7 @@
 # =======================================================================================================
 
 '''
-The purpose of this file is to create functions specifically for the 'data_acquisition_exercises.ipynb'
+The purpose of this file is to create functions specifically for the 'acquire.ipynb'
 file and anything else that may be of use.
 '''
 
