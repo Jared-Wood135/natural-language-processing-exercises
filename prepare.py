@@ -63,7 +63,7 @@ def basic_clean(entry):
     '''
     removed_special = [re.sub(r'[^\w\s]', '', text) for text in entry]
     normalized = [unicodedata.normalize('NFKD',text).encode('ascii', 'ignore').decode('utf-8') for text in removed_special]
-    lowered = normalized.str.lower()
+    lowered = [text.lower() for text in normalized]
     cleaned = lowered
     return cleaned
     
