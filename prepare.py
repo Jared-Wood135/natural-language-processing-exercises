@@ -141,22 +141,25 @@ def lemmatize(entry):
 # remove_stopwords START
 # =======================================================================================================
 
-def remove_stopwords(entry, extra_words=[], exclude_words=[]):
+def remove_stopwords(entry, extra_removal_words=[], keep_words=[]):
     '''
     Takes in a cleaned, tokenized, and stemmed/lemmatized pandas series (column) and removes all of the stopwords
     
     INPUT:
     entry = Cleaned, tokenized, and stemmed/lemmatized pandas series (column) that needs stopwords removed
-    extra_words = Additional words to include for removal
-    exclude_words = Words to exclude from removal
+    extra_removal_words = Additional words to include for removal
+    keep_words = Words to exclude from removal
     
     OUTPUT:
     removed_stopwords = Pandas series (column) that has stopwords removed (I HAVE EXORCISED THE DEMON)
     '''
     stopwords = nltk.corpus.stopwords
+    stopwords_list = stopwords.words('english')
+    stopwords_list.extend(extra_removal_words)
+    stopwords_list = list(set(stopwords_list) - set(keep_words))
     removed_stopwords = []
     for text in entry:
-        not_stopword = [word for word in text.split() if word not in stopwords.words('english') or word in extra_words and word not in exclude_words]
+        not_stopword = [word for word in text.split() if word not in stopwords_list]
         no_stopwords = ' '.join(not_stopword)
         removed_stopwords.append(no_stopwords)
     return removed_stopwords
