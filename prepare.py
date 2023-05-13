@@ -170,7 +170,7 @@ def remove_stopwords(entry, extra_removal_words=[], keep_words=[]):
 # full_clean START
 # =======================================================================================================
 
-def full_clean(entry, stem_method=False, extra_words=[], exclude_words=[]):
+def full_clean(entry, stem_method=False, extra_removal_words=[], keep_words=[]):
     '''
     Takes in a pandas series (column) and conducts the basic_clean, tokenize, stem/lemmatize
     (Lemmatize by default), and the remove_stopwords functions all at once rather than having to run the functions separately
@@ -178,8 +178,8 @@ def full_clean(entry, stem_method=False, extra_words=[], exclude_words=[]):
     INPUT:
     entry = Pandas series (column) that needs to be cleaned from start to finish
     stem_method = Boolean True/False: False for stemming and True for lemmatizing
-    extra_words = Additional words to include for removal
-    exclude_words = Words to exclude from removal
+    extra_removal_words = Additional words to include for removal
+    keep_words = Words to exclude from removal
     
     OUTPUT:
     full_cleaned_data = Pandas series (column) that has stopwords removed (I HAVE EXORCISED THE DEMON)
@@ -190,7 +190,7 @@ def full_clean(entry, stem_method=False, extra_words=[], exclude_words=[]):
         stemmed_or_lemmatized = stem(tokenized)
     else:
         stemmed_or_lemmatized = lemmatize(tokenized)
-    removed_stopwords = remove_stopwords(stemmed_or_lemmatized, extra_words=extra_words, exclude_words=exclude_words)
+    removed_stopwords = remove_stopwords(stemmed_or_lemmatized, extra_removal_words=extra_removal_words, keep_words=keep_words)
     full_cleaned_data = removed_stopwords
     return full_cleaned_data
 
