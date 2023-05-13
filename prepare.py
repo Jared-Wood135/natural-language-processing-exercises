@@ -61,10 +61,10 @@ def basic_clean(entry):
     OUTPUT:
     cleaned = Pandas series (column) that is cleaned (I HAVE EXORCISED THE DEMON)
     '''
-    lowered = entry.str.lower()
-    normalized = [unicodedata.normalize('NFKD',text).encode('ascii', 'ignore').decode('utf-8') for text in lowered]
-    removed_special = [re.sub(r'[^\w\s]', '', text) for text in normalized]
-    cleaned = removed_special
+    removed_special = [re.sub(r'[^\w\s]', '', text) for text in entry]
+    normalized = [unicodedata.normalize('NFKD',text).encode('ascii', 'ignore').decode('utf-8') for text in removed_special]
+    lowered = normalized.str.lower()
+    cleaned = lowered
     return cleaned
     
 # =======================================================================================================
